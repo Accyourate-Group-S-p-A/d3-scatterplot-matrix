@@ -37,7 +37,9 @@
             drawLegend = true,
             enableBrush = false,
             enableZoom = true,
-            zoomMode = "filterAxis"
+            zoomMode = "filterAxis",
+            labelMode = "diagonal",
+            tickLabelMode = "side"
 
         const cross = function (a, b) {
             let c = []
@@ -65,13 +67,16 @@
         }
 
         const hiddenClass = "hidden-" + Math.floor(Math.random() * 100000000)
+        const cellClass = "cell-" + Math.floor(Math.random() * 100000000)
         createClass("." + hiddenClass, "fill: #ccc !important;");
         createClass(".axis line", "stroke: #ddd")
         createClass(".axis path", "display: none")
 
         function chart(selection) {
             console.assert((enableBrush && enableZoom) !== true, "brush and zoom cannot be used together")
-            console.assert(["filterAxis", "filterData"].includes(zoomMode))
+            console.assert(["filterAxis", "filterData"].includes(zoomMode), "invalid zoomMode: ", zoomMode)
+            console.assert(["diagonal", "all"].includes(labelMode), "invalid labelMode: ", labelMode)
+            console.assert(["side", "all"].includes(tickLabelMode), "invalid tickLabelMode: ", tickLabelMode)
 
             selection.each(function (data) {
                 let n = traits.length
@@ -80,12 +85,12 @@
                 let widthCell = Math.floor((width - padding - margin.left - margin.right) / n)
                 let heightCell = Math.floor((height - padding - margin.top - margin.bottom) / n)
 
-                // the value range of each trait
-                let domainByTrait = {}
-                let xByTrait = {}
-                let yByTrait = {}
-                let xAxisByTrait = {}
-                let yAxisByTrait = {}
+                // for each trait
+                let domainByTrait = {} // the value range
+                let xByTrait = {} // x value mapping
+                let yByTrait = {} // y value mapping
+                let xAxisByTrait = {} // xAxis renderer
+                let yAxisByTrait = {} // yAxis renderer
                 traits.forEach(trait => {
                     domainByTrait[trait] = d3.extent(data, d => d[trait])
                     xByTrait[trait] = d3.scaleLinear()
@@ -114,24 +119,33 @@
                         (margin.left + padding / 2) + "," +
                         (margin.top + padding / 2) + ")");
 
+                let xAxisData = null
+                let yAxisData = null
+                if (labelMode === "diagonal") {
+                    xAxisData = cross(traits, traits).filter(d => d.j === 0)
+                    yAxisData = cross(traits, traits).filter(d => d.i === 0)
+                } else if (labelMode === "all") {
+                    xAxisData = cross(traits, traits)
+                    yAxisData = cross(traits, traits)
+                }
+
                 svg.selectAll(".x.axis")
-                    .data(traits)
+                    .data(xAxisData)
                     .enter().append("g")
                     .attr("class", "x axis")
-                    .attr("transform", (_, i) => "translate(" + (n - i - 1) * widthCell + "," + "0" + ")")
+                    .attr("transform", (d, _) => "translate(" + (n - d.i - 1) * widthCell + "," + (-d.j * heightCell) + ")")
                     .each(function (d) {
-                        xByTrait[d].domain(domainByTrait[d]);
-                        d3.select(this).call(xAxisByTrait[d]);
+                        xByTrait[d.x].domain(domainByTrait[d.x]);
+                        d3.select(this).call(xAxisByTrait[d.x]);
                     });
-
                 svg.selectAll(".y.axis")
-                    .data(traits)
+                    .data(yAxisData)
                     .enter().append("g")
                     .attr("class", "y axis")
-                    .attr("transform", (_, i) => "translate(" + "0" + "," + i * heightCell + ")")
+                    .attr("transform", (d, _) => "translate(" + d.i * widthCell + "," + d.j * heightCell + ")")
                     .each(function (d) {
-                        yByTrait[d].domain(domainByTrait[d]);
-                        d3.select(this).call(yAxisByTrait[d]);
+                        yByTrait[d.y].domain(domainByTrait[d.y]);
+                        d3.select(this).call(yAxisByTrait[d.y]);
                     });
 
                 const plot = function (p) {
@@ -162,21 +176,28 @@
                         .style("fill", d => color(colorValueMapper(d)));
                 }
 
-                let cell = svg.selectAll(".cell")
+                let cell = svg.selectAll("." + cellClass)
                     .data(cross(traits, traits))
                     .enter().append("g")
-                    .attr("class", "cell")
+                    .attr("class", cellClass)
                     .attr("transform", d => "translate(" + (n - d.i - 1) * widthCell + "," + d.j * heightCell + ")")
                     .each(plot);
 
-                // Titles for the diagonal
-                cell.filter(d => d.i === d.j)
-                    .append("text")
-                    .attr("x", padding)
+                // titles for the diagonal / all
+                let cellText = null
+                if (labelMode === "diagonal") {
+                    cellText = cell.filter(d => d.i === d.j)
+                        .append("text")
+                        .text(d => d.x)
+                } else if (labelMode === "all") {
+                    cellText = cell.append("text")
+                        .text(d => d.y + '/' + d.x)
+                }
+                cellText.attr("x", padding)
                     .attr("y", padding)
                     .attr("dy", ".71em")
-                    .text(d => d.x)
-                    .style("font", "10px sans-serif");
+                    .attr("fill", "black")
+                    .style("font", "10px sans-serif")
 
                 if (drawLegend) {
                     let legend = svg.selectAll(".legend")
@@ -200,6 +221,7 @@
 
                     legend.select("text")
                         .attr("x", width - 6)
+                        .attr("fill", "black")
                         .text(d => d);
                 }
 
@@ -252,10 +274,10 @@
                         let t = svg.transition().duration(duration);
 
                         svg.selectAll(".x.axis").each(function (d) {
-                            d3.select(this).transition(t).call(xAxisByTrait[d])
+                            d3.select(this).transition(t).call(xAxisByTrait[d.x])
                         });
                         svg.selectAll(".y.axis").each(function (d) {
-                            d3.select(this).transition(t).call(yAxisByTrait[d])
+                            d3.select(this).transition(t).call(yAxisByTrait[d.y])
                         });
 
                         cell.each(function (p) {
@@ -264,6 +286,7 @@
                                 .attr("cx", d => xByTrait[p.x](d[p.x]))
                                 .attr("cy", d => yByTrait[p.y](d[p.y]))
                                 .attr("display", function (d) {
+                                    // hide dots not inside their own cell
                                     if (d[p.x] < xByTrait[p.x].domain()[0] || d[p.x] > xByTrait[p.x].domain()[1])
                                         return "none"
                                     if (d[p.y] < yByTrait[p.y].domain()[0] || d[p.y] > yByTrait[p.y].domain()[1])
@@ -295,7 +318,6 @@
                                     yByTrait[trait].domain(domainByTrait[trait]);
                                 })
                             } else {
-
                                 let xMin = xByTrait[d.x].invert(extent[0][0])
                                 let xMax = xByTrait[d.x].invert(extent[1][0])
                                 let yMin = yByTrait[d.y].invert(extent[1][1])
@@ -424,6 +446,20 @@
             if (!arguments.length) return zoomMode
             console.assert(typeof (value) === "string", "invalid zoomMode", value)
             zoomMode = value
+            return chart
+        }
+
+        chart.labelMode = function (value) {
+            if (!arguments.length) return labelMode
+            console.assert(typeof (value) === "string", "invalid labelMode", value)
+            labelMode = value
+            return chart
+        }
+
+        chart.tickLabelMode = function (value) {
+            if (!arguments.length) return tickLabelMode
+            console.assert(typeof (value) === "string", "invalid tickLabelMode", value)
+            tickLabelMode = value
             return chart
         }
 

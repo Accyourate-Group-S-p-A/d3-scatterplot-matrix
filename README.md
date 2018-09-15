@@ -109,6 +109,16 @@ let width = chart.width() /* width = 800 */
     - default = "filterAxis"
     - note: in "filterAxis" mode, only the two brushed traits would update to the brushed range;
         in "filterData" mode, the range of all the axis would update to fit the range of filtered data
+- labelMode: [String]
+    - get/set the mode of trait label in ["diagonal", "all"]
+    - default = "diagonal"
+    - note: in "filterAxis" mode, only the diagonal scatter plots have trait labels;
+        in "all" mode, all the scatter plots have trait labels
+- tickLabelMode: [String]
+    - get/set the mode of tick value label in ["side", "all"]
+    - default = "side"
+    - note: in "side" mode, only the left side and bottom side of the scatter plot matrix show value labels;
+        in "all" mode, all the scatter plots have their own value labels
 
 ## Credit
 
