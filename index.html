@@ -19,7 +19,7 @@
       let chart = d3.scatterplotMatrix()
         .width(960)
         .height(600)
-        .traits(['sepal length', 'sepal width', 'petal length', 'petal width'])
+        .traits(['HOURS','FROM_TIME','TO_TIME','USERNAME','AVERAGE_BPM','MIN_BPM','MAX_BPM','AVERAGE_RMSSD','MIN_RMSSD','MAX_RMSSD','AVERAGE_RESPIRATORY_RATE','MIN_RESPIRATORY_RATE','MAX_RESPIRATORY_RATE','AVERAGE_TEMPERATURE','MIN_TEMPERATURE','MAX_TEMPERATURE','AVERAGE_ASF','MIN_ASF','MAX_ASF','MAX_CO2','MIN_CO2','AVG_CO2','MAX_HUMIDITY','MIN_HUMIDITY','AVG_HUMIDITY','MAX_NOISE','MIN_NOISE','AVG_NOISE','MAX_PRESSURE','MIN_PRESSURE','AVG_PRESSURE','MAX_RAIN','MIN_RAIN','AVG_RAIN','MAX_ENV_TEMPERATURE','MIN_ENV_TEMPERATURE','AVG_ENV_TEMPERATURE'])
         .colorValueMapper(d => d.species)
       
       let svg = d3.select('body').append('svg')
