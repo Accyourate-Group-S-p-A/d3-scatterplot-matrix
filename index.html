@@ -19,7 +19,7 @@
       let chart = d3.scatterplotMatrix()
         .width(960)
         .height(600)
-        .traits(['AVERAGE_BPM','AVERAGE_RMSSD','AVERAGE_RESPIRATORY_RATE','AVERAGE_TEMPERATURE','AVERAGE_ASF'])
+        .traits(['AVERAGE_RMSSD','AVERAGE_RESPIRATORY_RATE','AVERAGE_TEMPERATURE','AVERAGE_ASF'])
         .colorValueMapper(d => d.species)
       
       let svg = d3.select('body').append('svg')
