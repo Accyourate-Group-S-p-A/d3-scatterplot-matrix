@@ -1,5 +1,5 @@
 
-<!DOCTYPE html>
+<html>
 <meta charset="utf-8">
 <body>
 <!-- Load d3.js -->
@@ -22,7 +22,7 @@ var svg = d3.select("#my_dataviz")
           "translate(" + margin.left + "," + margin.top + ")");
 
 //Read the data
-d3.csv("https://accyourate-group-s-p-a.github.io/d3-scatterplot-matrix/flowers.csv", function(data) {
+d3.csv("flowers.csv", function(data) {
 
   // Add X axis
   var x = d3.scaleLinear()
@@ -53,4 +53,4 @@ d3.csv("https://accyourate-group-s-p-a.github.io/d3-scatterplot-matrix/flowers.c
 })
 </script>
 </body>
-	
+</html>	
