@@ -1,4 +1,3 @@
-import scatterplotMatrix from "pathToTheFile/d3.scatterplotMatrix.js"
 // set the dimensions and margins of the graph
 var margin = {top: 10, right: 30, bottom: 30, left: 60},
     width = 460 - margin.left - margin.right,
@@ -14,7 +13,7 @@ var svg = d3.select("#my_dataviz")
           "translate(" + margin.left + "," + margin.top + ")");
 
 //Read the data
-d3.csv("flowers.csv", function(data) {
+d3.csv("https://accyourate-group-s-p-a.github.io/d3-scatterplot-matrix/flowers.csv", function(data) {
 
   // Add X axis
   var x = d3.scaleLinear()
