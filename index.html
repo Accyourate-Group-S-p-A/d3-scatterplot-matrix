@@ -2,30 +2,10 @@
 <meta charset="utf-8">
 
 <body>
-  <script src="d3.v5.min.js"></script>
-  <script src="d3.scatterplotMatrix.js"></script>
-  <script>
-    (async function () {
+<!-- Create a div where the graph will take place -->
+<div id="my_dataviz"></div>
+ <!-- Load d3.js -->
+<script src="d3.scatterplotMatrix.js"></script>
 
-      /*
-      const data = [{x: 10, y: 10, z: 4}, {x: 20, y: 15, z: 6}, {x: 30, y: 0, z: 1}]
-      let chart = d3.scatterplotMatrix()
-        .width(960)
-        .height(600)
-        .traits(['x', 'y', 'z'])
-      */
-      
-      const data = await d3.csv("flowers.csv")
-      let chart = d3.scatterplotMatrix()
-        .width(960)
-        .height(600)
-        .traits(['AVERAGE_BPM','AVG_NOISE'])
-        .colorValueMapper(d => d.species)
-      
-      let svg = d3.select('body').append('svg')
-        .datum(data)
-        .call(chart)
-    })()
-  </script>
 </body>
 	
